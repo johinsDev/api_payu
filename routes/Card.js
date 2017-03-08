@@ -1,5 +1,6 @@
-module.exports.controller = function(app , controller , auth_middle) {
+module.exports.controller = function(app , controller , auth) {
 
+    app.use('/cards' , auth)
 
     app.route('/cards')
         .get(controller.index )
