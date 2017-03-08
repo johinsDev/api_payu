@@ -1,0 +1,6 @@
+- if (!success)
+    - if (errors)
+        .alert.alert-danger
+            ul
+                each error in errors
+                    li #{ error.msg }

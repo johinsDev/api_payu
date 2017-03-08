@@ -1,0 +1,17 @@
+mixin form(accion)
+    form(method='POST')
+        .form-group
+            input.form-control(type="text", placeholder="Numero de tarjeta", name="number" , value=card.last_number)
+        .form-group
+            .row
+                .col-md-6
+                    input.form-control(type="text", placeholder="Mes",name="month",value=card.month)
+                .col-md-6
+                    input.form-control(type="text", placeholder="Año",name="year",value=card.year)
+        .form-group
+            .row
+                .col-md-6
+                    input.form-control(type="text", placeholder="CVV",name="cvv",value=card.cvv)
+                .col-md-6
+                    input.btn.btn-info.btn-block(type="submit", value=accion)
+                    input(type="hidden", value="visa", name="type")

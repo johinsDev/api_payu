@@ -1,0 +1,21 @@
+extends ../layout
+
+block content
+    .container
+        include ../partials/errors
+        .row
+            .col-md-12.text-center
+                h1 Editar tarjeta de credito terminada en #{card.last_number}
+        .row
+            .col-md-6.col-md-offset-3
+                .panel.panel-info
+                    .panel-heading Editar tarjeta
+                    .panel-body
+                        include ../partials/cards/form
+                        +form('Editar' , card)
+        .row
+            .col-md-12.col-md-push-3
+                .col-md-3
+                    a.btn-btn-success(href="/cards") Volver listado no asincrono
+                .col-md-3
+                    a.btn-btn-success(href="/cards/async") Volver listado asincrono

@@ -1,0 +1,21 @@
+extends ../layout
+
+block content
+    .container
+        include ../partials/errors
+        .row
+            .col-md-12.text-center
+                h1 Crear nueva tarjeta de credito
+        .row
+            .col-md-6.col-md-offset-3
+                .panel.panel-info
+                    .panel-heading Agregar tarjeta
+                    .panel-body
+                        include ../partials/cards/form
+                        +form('Agregar')
+        .row
+            .col-md-12.col-md-push-3
+                .col-md-3
+                    a.btn-btn-success(href="/cards") Volver listado no asincrno
+                .col-md-3
+                    a.btn-btn-success(href="/cards/async") Volver listado asincrno
