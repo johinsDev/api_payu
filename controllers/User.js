@@ -43,7 +43,7 @@ exports.auth = function (req , res) {
 
                     res
                         .status(201)
-                        .json({token: token})
+                        .json({ user , token })
 
                 }else{
                     res
