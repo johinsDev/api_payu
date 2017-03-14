@@ -32,7 +32,7 @@ exports.store = function (req , res) {
             if (data.code == 'ERROR'){
                 res
                     .status(402)
-                    .json({ errors: {error:data.errorcb} })
+                    .json({ errors: {error:data.error} })
             }else{
                 Card.create(data.creditCardToken);
                 res
