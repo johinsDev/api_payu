@@ -18,7 +18,7 @@ exports.store = function (req , res) {
 
             res
                 .status(201)
-                .json({token: token})
+                .json({user: user , token: token})
         })
         .catch(function(error) {
             res
