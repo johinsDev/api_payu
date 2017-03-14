@@ -31,8 +31,19 @@ app.use(cookieParser('keyboard cat'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({ cookie: { maxAge: 60000 }}));
 app.use(flash());
-app.use(cors({origin: 'http://localhost:8080'}))
 
+var whitelist = ['http://localhost:8080', 'http://example2.com']
+var corsOptionsDelegate = function (req, callback) {
+  var corsOptions;
+  if (whitelist.indexOf(req.header('Origin')) !== -1) {
+    corsOptions = { origin: true } // reflect (enable) the requested origin in the CORS response
+  }else{
+    corsOptions = { origin: false } // disable CORS for this request
+  }
+  callback(null, corsOptions) // callback expects two parameters: error and options
+}
+
+app.use(cors(corsOptionsDelegate));
 
 var auth_middle = require('./middleware/Auth')
 

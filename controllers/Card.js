@@ -1,4 +1,7 @@
-var Card = require('../models/Card')
+var Card = require('../models/Card');
+var Payu = require('../config/Payu');
+const config = require('../config/services')
+const payu = new Payu(config.payu);
 
 exports.index = function(req, res) {
 
@@ -20,23 +23,24 @@ exports.create = function (req , res) {
 };
 
 exports.store = function (req , res) {
-    req.check('number' , 'Tarjeta de creditoDebe ser un numero').notEmpty().isInt();
-    req.check('cvv' , 'el Cvv debe ser un numero').isLength({min:3 , max:4}).isInt();
-
-    var errors = req.validationErrors();
-    if (errors){
-        req.session.errors = errors;
-        res.redirect('/cards/create');
-        req.session.success = false;
-
-    }else{
-        req.session.success = true;
-
-        req.flash('notices', {'type': 'info' , 'msg': 'Tarjeta creada'});
-
-        Card.create(req.body);
-        res.redirect('/cards');
-    }
+    payu.create_token_Card(req.body , (err , data) => {
+        if (err) {
+            res
+                .status(402)
+                .json({err: err})
+        } else {
+            if (data.code == 'ERROR'){
+                res
+                    .status(402)
+                    .json({ errors: {error:data.errorcb} })
+            }else{
+                Card.create(data.creditCardToken);
+                res
+                    .status(201)
+                    .json({card: data.creditCardToken})
+            }
+        }
+    })
 };
 
 exports.edit = function (req , res , next) {

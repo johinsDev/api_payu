@@ -6,7 +6,6 @@ var _this = connection.firebase.database().ref(table);
 
 
 exports.create =  function (data) {
-    data['last_number'] = data.number.substr(data.number.length  - 4);
     return _this.push(data)
 };
 

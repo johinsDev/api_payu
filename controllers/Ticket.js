@@ -9,3 +9,13 @@ exports.index = function(req, res) {
     })
 
 };
+
+exports.find = function(req, res) {
+
+    Ticket.find(req.params.id , (ticket) => {
+        res
+            .status(200)
+            .json({ticket: ticket})
+    })
+
+};

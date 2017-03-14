@@ -18,3 +18,9 @@ exports.filter = function (cb) {
         return cb(err)
     })
 }
+
+exports.find = function (id , cb) {
+    connection.firebase.database().ref('tickets/' + id).once('value')
+        .then((snap) => cb(snap.val()))
+        .catch((err) => cb(err))
+};
