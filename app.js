@@ -32,7 +32,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({ cookie: { maxAge: 60000 }}));
 app.use(flash());
 
-var whitelist = ['http://localhost:8080', 'http://example2.com']
+var whitelist = ['http://localhost:8080', 'http://example2.com' , 'http://dev.mocionsoft.com/front_cli']
 var corsOptionsDelegate = function (req, callback) {
   var corsOptions;
   if (whitelist.indexOf(req.header('Origin')) !== -1) {
