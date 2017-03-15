@@ -1,7 +1,8 @@
 var request = require('request');
 var crypto = require('crypto');
 const cmd = {
-    CREATE_TOKEN: 'CREATE_TOKEN'
+    CREATE_TOKEN: 'CREATE_TOKEN',
+    SUBMIT_TRANSACTION: 'SUBMIT_TRANSACTION'
 };
 
 function PayU(config) {
@@ -54,13 +55,13 @@ function PayU(config) {
         https_post(payload, cb);
     };
 
-    this.create_payment= function () {
-        let data = {
-            "language": "es",
-            "command": "SUBMIT_TRANSACTION",
+    this.create_payment= function (cb) {
+        let payload = {
+            "language": COUNTRY,
+            "command": cmd.SUBMIT_TRANSACTION,
             "merchant": {
-                "apiKey": "4Vj8eK4rloUd272L48hsrarnUA",
-                "apiLogin": "pRRXKOl8ikMmt9u"
+                "apiLogin": config.api_login,
+                "apiKey": config.api_key ,
             },
             "transaction": {
                 "order": {
@@ -137,6 +138,7 @@ function PayU(config) {
             },
             "test": false
         }
+        https_post(payload, cb);
     };
 
     return this;
