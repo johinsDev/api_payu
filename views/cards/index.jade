@@ -1,0 +1,34 @@
+extends ../layout
+
+block content
+    h1 Crud Basico con node and firebase (Promesa asincrona del server)
+    ul
+        li
+            a(href="/cards/create") Crear una tarjeta
+    h2  Listado de tarjetas
+    include ../partials/messages
+    -if (cards)
+        table.table
+            thead
+                tr
+                    td #
+                    td Ultimos cuatro digitos
+                    td Tipo
+                    td Mes
+                    td Año
+                    td Acctiones
+            tbody
+                each card, i  in cards
+                    tr
+                        td #{i}
+                        td **** **** **** **** #{card.last_number}
+                        td #{card.type}
+                        td #{card.month}
+                        td #{card.year}
+                        td
+                            a.btn.btn-danger(href="/cards/" + i + "/delete")
+                                span.glyphicon.glyphicon-remove
+                            a.btn.btn-warning(href="/cards/" + i + "/edit")
+                                span.glyphicon.glyphicon-edit
+    -else
+        h2 No hay tarjetas de credito
