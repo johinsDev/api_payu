@@ -1,6 +1,6 @@
 var Model = require('../config/firebase/index');
 const table = 'products';
-var relation = [];
+var relations = ['stages'];
 
 exports.create =  function (data , cb) {
     Model.create(table , data)
@@ -12,6 +12,14 @@ exports.find = function (id , cb) {
         where: {
             id: id
         }
-    } , relation).then((item) => cb(item))
+    } , relations).then((item) => cb(item))
+    return this;
+};
+
+
+
+exports.get = function (cb) {
+    Model.find(table)
+        .then((items) => cb(items))
     return this;
 };

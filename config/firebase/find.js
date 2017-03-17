@@ -22,7 +22,7 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-
+var Data = require('./Data')
 var _ = require('lodash');
 var Promise = require('bluebird');
 var WaterlineCriteria = require('waterline-criteria');
@@ -113,10 +113,11 @@ var onFind = function onFind(snapshot) {
         return documents;
     }
 
-    return _.values(_.mapValues(documents, function(document, id) {
+    let values =  _.values(_.mapValues(documents, function(document, id) {
         document._id = id;
-        return document;
+       return document;
     }));
+    return new Data(values);
 };
 
 var findEqualTo = function findByAttribute(collection, query) {
@@ -174,7 +175,7 @@ var findById = function findById(collection, query) {
 
             var document = snapshot.val();
             document._id = snapshot.key;
-            return [ document ];
+            return new Data([ document ]);
         };
 
         return reference.child(query.where.id).once('value').then(onFindOne);
@@ -186,7 +187,6 @@ var findById = function findById(collection, query) {
 var findSlow = function findSlow(collection) {
     try {
         var reference = database.ref(collection);
-
         return reference.once('value').then(onFind);
     } catch (error) {
         return Promise.reject(error);

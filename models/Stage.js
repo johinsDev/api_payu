@@ -1,7 +1,17 @@
-var Model = require('../config/firebase/index');
 
-const table = 'stages';
+var Model = require('../config/firebase');
 
+var util = require('util');
+
+function Stage() {
+    Model.call(this);
+}
+
+util.inherits(Stage, Model);
+
+module.exports = Stage;
+
+/*
 exports.create =  function (data , cb) {
     Model.create(table , data)
         .then(cb(data));
@@ -36,4 +46,4 @@ exports.destroy = function (id , cb) {
             id: id
         }
     }).then(cb)
-};
+}; */

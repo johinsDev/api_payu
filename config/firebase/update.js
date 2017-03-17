@@ -52,8 +52,8 @@ var Update = function Update(collection, query, values) {
     };
 
         var updateEach = function updateEach(documents) {
-        return  createEach(collection, _.map(documents, updateOne)).then(head);
-    };
+            return  createEach(collection, _.map(documents, updateOne)).then(head);
+        };
 
     return find(collection, query).then(updateEach);
 };

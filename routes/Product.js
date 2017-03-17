@@ -4,4 +4,6 @@ module.exports.controller = function(app , controller , auth) {
         .post(controller.store);
     app.route('/products/:id')
         .get(controller.show);
+    app.route('/products')
+        .get(controller.index);
 };

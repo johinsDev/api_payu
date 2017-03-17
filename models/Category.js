@@ -13,17 +13,6 @@ exports.get = function (cb) {
       .then((items) => cb(items))
 };
 
-//encontrar la forma que tome el modelo y asi cree la referencia amenos que se lo cambiemos
-//al igual que el created at and updated at
-//Editar el paquete para que ordene y agrupe
-//seria tambien genial, lograr relaciones entre tablas de firebase
-//create updatebyid y deletebyid
-//metodos como count y sum por algun parametro
-//validaciones como elemento ya eliminado o no encontrado
-//poder crear accesors y mutators
-//y porque no funciones de relaciones como laravel model.relathion
-//o que las traiga dentro del modelo
-
 exports.find = function (id , cb) {
     Model.findOne(table , {
         where: {

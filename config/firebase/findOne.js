@@ -41,6 +41,7 @@ var FindOne = function FindOne(collection, query , relations) {
     //cuando la relacion es muchos a muchos
     //que esto de la relacion no solo sea para buscar uno
     //que se pueda adaptar para traer muchos datos
+    //hacer una forma para que el usuario solo traiga una relacion especifica
 
 
     var findOneRelation = function (relation , item) {
@@ -56,8 +57,8 @@ var FindOne = function FindOne(collection, query , relations) {
         }
     };
 
-    var head = function head(documents) {
-        let item =  (documents.length > 0) ? _.head(documents) : null;
+    var head = function head(documents) {;
+        let item =  (documents.get().length > 0) ? _.head(documents.get()) : null;
         if (!_.isEmpty(relations) && !_.isNull(relations) && !_.isUndefined(relations)) {
             for (var relation in relations) {
                 var row = findOneRelation(relations[relation], item);
