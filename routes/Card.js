@@ -1,6 +1,5 @@
-module.exports.controller = function(app , controller , auth) {
+module.exports.controller = function(app , controller) {
 
-    app.use('/cards' , auth)
 
     app.route('/cards')
         .get(controller.index )

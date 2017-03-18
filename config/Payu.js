@@ -55,7 +55,7 @@ function PayU(config) {
         https_post(payload, cb);
     };
 
-    this.create_payment= function (cb) {
+    this.create_payment= function (key , cb) {
         let payload = {
             "language": COUNTRY,
             "command": cmd.SUBMIT_TRANSACTION,
@@ -65,79 +65,47 @@ function PayU(config) {
             },
             "transaction": {
                 "order": {
-                    "accountId": "512321",
+                    "accountId": key,
                     "referenceCode": "payment_test_00000001",
                     "description": "payment test",
                     "language": "es",
-                    "signature": "971dd1f8bd4c7b43eae2233464d4c97e",
+                    "signature": "31eba6f397a435409f57bc16b5df54c3",
                     "notifyUrl": "http://www.tes.com/confirmation",
                     "additionalValues": {
                         "TX_VALUE": {
-                            "value": 10000,
-                            "currency": "COP"
+                            "value": 100,
+                            "currency": "BRL"
                         }
                     },
                     "buyer": {
                         "merchantBuyerId": "1",
                         "fullName": "First name and second buyer  name",
                         "emailAddress": "buyer_test@test.com",
-                        "contactPhone": "7563126",
-                        "dniNumber": "5415668464654",
+                        "contactPhone": "(11)756312633",
+                        "dniNumber": "811.807.405-64",
+                        "cnpj": "32593371000110",
                         "shippingAddress": {
                             "street1": "calle 100",
                             "street2": "5555487",
-                            "city": "Medellin",
-                            "state": "Antioquia",
-                            "country": "CO",
-                            "postalCode": "000000",
-                            "phone": "7563126"
+                            "city": "Sao paulo",
+                            "state": "SP",
+                            "country": "BR",
+                            "postalCode": "01019-030",
+                            "phone": "(11)756312633"
                         }
-                    },
-                    "shippingAddress": {
-                        "street1": "calle 100",
-                        "street2": "5555487",
-                        "city": "Medellin",
-                        "state": "Antioquia",
-                        "country": "CO",
-                        "postalCode": "0000000",
-                        "phone": "7563126"
                     }
                 },
-                "payer": {
-                    "merchantPayerId": "1",
-                    "fullName": "First name and second payer name",
-                    "emailAddress": "payer_test@test.com",
-                    "contactPhone": "7563126",
-                    "dniNumber": "5415668464654",
-                    "billingAddress": {
-                        "street1": "calle 93",
-                        "street2": "125544",
-                        "city": "Bogota",
-                        "state": "Bogota DC",
-                        "country": "CO",
-                        "postalCode": "000000",
-                        "phone": "7563126"
-                    }
-                },
-                "creditCard": {
-                    "number": "4097440000000004",
-                    "securityCode": "321",
-                    "expirationDate": "2014/12",
-                    "name": "REJECTED"
-                },
+                "creditCardTokenId": "8604789e-80ef-439d-9c3f-5d4a546bf637",
                 "extraParameters": {
                     "INSTALLMENTS_NUMBER": 1
                 },
-                "type": "AUTHORIZATION_AND_CAPTURE",
+                "type": "AUTHORIZATION",
                 "paymentMethod": "VISA",
-                "paymentCountry": "CO",
-                "deviceSessionId": "vghs6tvkcle931686k1900o6e1",
-                "ipAddress": "127.0.0.1",
-                "cookie": "pt1t38347bs6jc9ruv2ecpv7o2",
-                "userAgent": "Mozilla/5.0 (Windows NT 5.1; rv:18.0) Gecko/20100101 Firefox/18.0"
+                "paymentCountry": "BR",
+                "ipAddress": "127.0.0.1"
             },
-            "test": false
-        }
+            "test": true
+        };
         https_post(payload, cb);
     };
 
