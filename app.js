@@ -48,6 +48,7 @@ app.use(cors(corsOptionsDelegate));
 var auth_middle = require('./middleware/Auth')
 
 // dynamically include routes (Controller)
+//'/var/www/html/clicApi/routes'
 fs.readdirSync('./routes').forEach(function (file) {
   if(file.substr(-3) == '.js') {
     route = require('./routes/' + file);
