@@ -2,30 +2,35 @@ var Order = require('../models/Order')
 var Payu = require('../config/Payu');
 const config = require('../config/services')
 const payu = new Payu(config.payu);
-var PayU = require('payu-pl'),
-    merchantConfig = {
-        merchantPosId: 508029, //test merchant id
-        key: '4Vj8eK4rloUd272L48hsrarnUA', //test merchant key
-        currencyCode: "COP"
-    },
-    merchant;
-merchant = PayU.setDefaultMerchant(merchantConfig);
 exports.payment = function(req, res) {
-    Order.create(req.body , (key)  => {
-        var testOrderData = {
-            customerIp: "127.0.0.1",
-            description: 'Test order',
-            totalAmount: PayU.parsePrice(17.99), //or put string value in lowest currency unit
-            products: [{
-                name: 'Product 1',
-                unitPrice: PayU.parsePrice(17.99),
-                quantity:1
-            }]
-        };
+    Order.create(req.body , (order)  => {
+        payu.generate(order , req.body , (error , data , payload) => {
+            if (data.code = 'ERROR'){
 
-        merchant.createOrder(testOrderData, function(err, response){
-            console.log(err, response);
-        });
+            }
+            if (data.code = 'SUCCESS'){
+                let response = data.transactionResponse;
+                res
+                    .status(201)
+                    .json({status: response.state ,
+                        coreError:response.responseCode,
+                        data: {
+                            tickets: {
+                                id: '',
+                                price: '',
+                                category: '',
+                                stage: '',
+                                buyerName:'',
+                                buyerCC: ''
+                            },
+                            order: {
+                                total: payload.transaction.order.additionalValues.TX_VALUE.value,
+                                id: response.orderId ,
+                            }
+                        }
+                    })
+            }
+
+        })
     });
-
 };

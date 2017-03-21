@@ -11,5 +11,8 @@ exports.createToken = function(user) {
 exports.payu = {
     api_login: "pRRXKOl8ikMmt9u",
     api_key: "4Vj8eK4rloUd272L48hsrarnUA",
-    url: 'https://sandbox.api.payulatam.com/payments-api/4.0/service.cgi'
+    account_id: "512321",
+    merchant_id: "508029",
+    url: 'https://sandbox.api.payulatam.com/payments-api/4.0/service.cgi',
+    notification_url: "dev.mocionsoft.com:6478/callback_url"
 }

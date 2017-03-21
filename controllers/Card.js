@@ -23,7 +23,7 @@ exports.create = function (req , res) {
 };
 
 exports.store = function (req , res) {
-    payu.create_token_Card(req.body , (err , data) => {
+    payu.create_token_Card(req.body , (err , data , payload) => {
         if (err) {
             res
                 .status(402)
