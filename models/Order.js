@@ -17,10 +17,20 @@ exports.create =  function (data , cb) {
         total: 10000,
         customer: user_key,
         pay: false,
-        payment_method:'credit_card'
+        payment_method:'credit_card',
+        quantity: data.quantity
     };
 
     let row = _this.push();
     row.set(order);
-    return cb(row);
+    return cb(row , row.key);
+};
+
+exports.update = function (id , payu_order) {
+  connection.firebase.database().ref(table + '/' + id).once('value' , (order) => {
+              let item = order.val();
+              item['pay'] = true;
+              item['payu_order'] = payu_order;
+              return connection.firebase.database().ref(table + '/' + id).update(item)
+    });
 };

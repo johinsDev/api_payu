@@ -19,6 +19,7 @@
     "md5": "^2.2.1",
     "moment": "^2.17.1",
     "morgan": "~1.7.0",
+    "node-uuid": "^1.4.7",
     "payu-pl": "0.0.3",
     "serve-favicon": "~2.3.2",
     "waterline-criteria": "^2.0.0"

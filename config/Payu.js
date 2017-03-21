@@ -25,6 +25,9 @@ const Ticket = require('../models/Ticket')
 const COUNTRY = {
     CO: 'es'
 };
+//falta actualizar la orden si quedo paga y con el orderid de payu
+//falta tamvien crear order_tickets con order_id user_id y datos que vienen de cada boleta
+//luego mirar como retornar esos datos
 
 function PayU(config) {
 
