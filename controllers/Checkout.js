@@ -19,9 +19,9 @@ exports.payment = function(req, res) {
                 });
 
 
-                //if ( data.transactionResponse.responseCode == 'APPROVED'){
+                if ( data.transactionResponse.responseCode == 'APPROVED'){
                     Order.update(key_order , data.transactionResponse.orderId);
-                // }
+                 }
 
                 OrderItem.findByOrderId(key_order , (tickets) => {
                     let response = data.transactionResponse;
