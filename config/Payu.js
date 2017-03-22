@@ -1,5 +1,7 @@
 var request = require('request');
 var crypto = require('crypto');
+
+
 const cmd = {
     CREATE_TOKEN: 'CREATE_TOKEN',
     SUBMIT_TRANSACTION: 'SUBMIT_TRANSACTION'
@@ -16,7 +18,7 @@ const CURRENCY = {
     COLOMBIAN: 'COP'
 };
 
-const md5 = require('md5')
+const md5 = require('md5');
 
 var payuPayload = {};
 
@@ -25,9 +27,10 @@ const Ticket = require('../models/Ticket')
 const COUNTRY = {
     CO: 'es'
 };
-//falta actualizar la orden si quedo paga y con el orderid de payu
-//falta tamvien crear order_tickets con order_id user_id y datos que vienen de cada boleta
-//luego mirar como retornar esos datos
+
+const METHOD = {
+    CO : [ 'MASTERCARD', 'BALOTO', 'BANK_REFERENCED', 'PSE', 'VISA', 'EFECTY', 'DINERS', 'AMEX', 'CODENSA'],
+};
 
 function PayU(config) {
 
@@ -56,6 +59,7 @@ function PayU(config) {
                 cb(err);
             } else {
                 cb(err, data , payload);
+                console.log(data);
             }
         });
     }
@@ -63,6 +67,21 @@ function PayU(config) {
     function noe(i) {
         return [undefined, null, ''].indexOf(i) > -1;
     }
+
+    function validateMethod(method) {
+        return METHOD.CO.indexOf(method.toUpperCase()) > -1
+    }
+
+    function isCard(method) {
+        return !(['BALOTO', 'BANK_REFERENCED', 'PSE', 'EFECTY'].indexOf(method.toUpperCase()) > -1)
+    }
+    
+    function isBankTransfer(method) {
+        return (['PSE'].indexOf(method.toUpperCase()) > -1)
+    }
+
+    //retornar errores custom retornar promesas
+    //validar mejor datos
     //para mejorar una libreria como la de paypal
     //con cada item del array divido en clases, con setters y getters
     //custom try catch , poder configurar
@@ -87,8 +106,10 @@ function PayU(config) {
         https_post(payload, cb);
     };
 
-    this.generate = function (order , data , cb) {
-
+    this.generate = function (order , data ,method , cb) {
+        if (noe(method) || !validateMethod(method)){
+           return cb(null ,{code: 'ERROR' , error: 'Metodo de pago no valido.'})
+        }
         Ticket.find(data.ticket , (ticket) => {
             this.setLanguage("ES");
             this.setCommand("SUBMIT_TRANSACTION");
@@ -124,20 +145,38 @@ function PayU(config) {
                 "emailAddress": data.user.email
             });
 
-            transaction.setCreditCard(true ,  data.credit_card);
+            transaction.setPaymentMethod(method.toUpperCase());
+            if (isCard(method)){
 
-            this.extra().setInstallments(1);
+                transaction.setCreditCard(true ,  data.credit_card);
+
+                this.extra().setInstallments(1);
+            }
+
+            if (isBankTransfer(method)){
+                this.extra().setBank({
+                    "RESPONSE_URL": "http://www.test.com/response",
+                    "FINANCIAL_INSTITUTION_CODE": "1007",
+                    "USER_TYPE": "N",
+                    "PSE_REFERENCE3": "123456789"
+                });
+            }
 
             transaction.setType('AUTHORIZATION_AND_CAPTURE');
 
-            transaction.setPaymentMethod('VISA');
+
 
             transaction.setPaymentCountry('CO');
 
 
             transaction.isTest(false);
+            console.log(payuPayload)
             https_post(payuPayload, cb);
         });
+    };
+    
+    this.setBank = function (payload) {
+        payuPayload.transaction.extraParameters = payload;
     };
 
     this.createSignature = function (referenceCode , amount , currency) {
@@ -201,6 +240,7 @@ function PayU(config) {
     };
 
     this.setPaymentMethod = function (value) {
+
         payuPayload.transaction.paymentMethod = value;
     };
 

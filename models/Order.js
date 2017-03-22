@@ -5,7 +5,7 @@ var _this = connection.firebase.database().ref(table);
 
 
 
-exports.create =  function (data , cb) {
+exports.create =  function (data , method , cb) {
     let user = connection.firebase.database().ref('users');
     //falta buscar usuario por correo para traerlo no crearlo
 
@@ -17,7 +17,7 @@ exports.create =  function (data , cb) {
         total: 10000,
         customer: user_key,
         pay: false,
-        payment_method:'credit_card',
+        payment_method: method ? method : 'credit_card',
         quantity: data.quantity
     };
 
@@ -26,11 +26,11 @@ exports.create =  function (data , cb) {
     return cb(row , row.key);
 };
 
-exports.update = function (id , payu_order) {
+exports.update = function (id , payu_order , bool) {
   connection.firebase.database().ref(table + '/' + id).once('value' , (order) => {
               let item = order.val();
-              item['pay'] = true;
-              item['payu_order'] = payu_order;
+              item['pay'] = bool;
+              item['payu_order'] = payu_order ;
               return connection.firebase.database().ref(table + '/' + id).update(item)
     });
 };
