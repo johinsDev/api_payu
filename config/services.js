@@ -14,5 +14,5 @@ exports.payu = {
     account_id: "512321",
     merchant_id: "508029",
     url: 'https://sandbox.api.payulatam.com/payments-api/4.0/service.cgi',
-    notification_url: "dev.mocionsoft.com:6478/callback_url"
+    notification_url: "http://localhost:3001/callback"
 }

@@ -3,7 +3,8 @@ var OrderItem = require('../models/OrderItem');
 var Ticket = require('../models/Ticket');
 var Payu = require('../config/Payu');
 const config = require('../config/services');
-const payu = new Payu(config.payu);
+const Email = require('../config/SendEmail');
+const email = new Email()
 
 
 function noe(i) {
@@ -11,6 +12,7 @@ function noe(i) {
 }
 
 exports.payment = function(req, res) {
+    const payu = new Payu(config.payu);
     if (noe(req.query.payment_method)){
         res
             .status(402)
@@ -64,4 +66,60 @@ exports.payment = function(req, res) {
             })
         });
     }
+};
+
+//si es tambien posible crear la funcion de pagos recurrentes
+//me gustaria que la configuracion general quede en el constructor de la clase
+//y aparte tener los metodos principales ya configurados, validar tarjetas, obtener los bancos, metodos de pago
+//pago pse, y en fin los demas, pero a la ves poder configurar las propias o en suu deefencto una global donde pasemos
+//un payment method diferente
+//seria bueno que los predifinidos tambien se pudieran alterar como payu.getListBank peor si quisiera , esditara , ese metodo con set
+//generar un metodo execute
+//intentar crear custom thro extection
+//intentar regresar promise para que quede algo llamar funcion ,then y .catch
+//que cada cosa quede dividida como el sdk de paypal
+//una configuracion apra retornar errores en formato json
+//coger los errores de payu y retornar como error
+//crear modulo de constantes
+//crear modulo de traduccion de errores y notificaciones
+//genrar funcion para validar notification url
+//finalmente crear fuciones de admin
+//mirar la forma de que noto instanciar de nuevo payu
+
+
+exports.getBankList = function (req, res) {
+    const payu = new Payu(config.payu);
+    payu.setBankList({
+            "paymentMethod": "PSE",
+            "paymentCountry": "CO"
+        }).execute((err, data , payload) => {
+            res
+                .status(201)
+                .json({banks: data.banks})
+    });
+};
+
+
+exports.notifyUrl = function (req, res) {
+   const payu = new Payu(config.payu);
+   payu.consumeNotification(req)
+       .then((response) =>{
+           payu.doOrderDetailReporting(response.getResponse().reference_pol ,
+               (err , data ) => {
+               //if (data.result.status == 'SUCCESS'){
+                   Order.update(response.getResponse().reference_sale , response.getResponse().reference_pol ,true);
+
+                   OrderItem.findByOrderId(response.getResponse().reference_sale , (tickets) => {
+                       email.send(response.getResponse().email_buyer , {tickets});
+                   })
+
+                   res
+                       .status(200)
+                       .json({});
+               //}
+           });
+       })
+       .catch((error) =>{
+           console.log(error);
+       });
 };

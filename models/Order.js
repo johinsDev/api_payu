@@ -34,3 +34,10 @@ exports.update = function (id , payu_order , bool) {
               return connection.firebase.database().ref(table + '/' + id).update(item)
     });
 };
+
+exports.filter = function (id , cb) {
+    connection.firebase.database().ref(table + '/' + id).once('value' , (order) => {
+        let item = order.val();
+        cb(item);
+    });
+};

@@ -4,7 +4,9 @@ var crypto = require('crypto');
 
 const cmd = {
     CREATE_TOKEN: 'CREATE_TOKEN',
-    SUBMIT_TRANSACTION: 'SUBMIT_TRANSACTION'
+    SUBMIT_TRANSACTION: 'SUBMIT_TRANSACTION',
+    GET_BANKS_LIST: 'GET_BANKS_LIST',
+    ORDER_DETAIL: 'ORDER_DETAIL'
 };
 const LANGUAGE = {
     ES: 'es'
@@ -33,7 +35,7 @@ const METHOD = {
 };
 
 function PayU(config) {
-
+    //constructor
     if (noe(config.payu_url)) {
         config.payu_url = 'https://sandbox.api.payulatam.com/payments-api/4.0/service.cgi';
     }
@@ -44,9 +46,9 @@ function PayU(config) {
         return s.digest('hex');
     }
 
-    function https_post(payload, cb) {
+    function https_post(payload, cb , url) {
         const options = {
-            url: config.payu_url,
+            url: !url ? config.payu_url : url,
             method: 'POST',
             json: true,
             headers: {
@@ -58,14 +60,30 @@ function PayU(config) {
             if (err) {
                 cb(err);
             } else {
+                //console.log(payload)
+                //cleanPayload('bankListInformation');
                 cb(err, data , payload);
-                console.log(data);
             }
         });
     }
 
     function noe(i) {
         return [undefined, null, ''].indexOf(i) > -1;
+    }
+    function isEmptyObject(obj) {
+
+        if (obj == null) return true;
+
+        if (obj.length > 0)    return false;
+        if (obj.length === 0)  return true;
+
+        if (typeof obj !== "object") return true;
+
+        for (var key in obj) {
+            if (hasOwnProperty.call(obj, key)) return false;
+        }
+        return true;
+
     }
 
     function validateMethod(method) {
@@ -148,7 +166,12 @@ function PayU(config) {
             transaction.setPaymentMethod(method.toUpperCase());
             if (isCard(method)){
 
-                transaction.setCreditCard(true ,  data.credit_card);
+                transaction.setCreditCard(false ,  {
+                    "number": data.card.number,
+                    "securityCode": data.card.securityCode,
+                    "expirationDate": data.card.expirationDate,
+                    "name": data.user.name
+                });
 
                 this.extra().setInstallments(1);
             }
@@ -156,9 +179,9 @@ function PayU(config) {
             if (isBankTransfer(method)){
                 this.extra().setBank({
                     "RESPONSE_URL": "http://www.test.com/response",
-                    "FINANCIAL_INSTITUTION_CODE": "1007",
-                    "USER_TYPE": "N",
-                    "PSE_REFERENCE3": "123456789"
+                    "FINANCIAL_INSTITUTION_CODE": data.bank.bank,
+                    "USER_TYPE": data.bank.type_client,
+                    "PSE_REFERENCE3": data.user.identificationNumber
                 });
             }
 
@@ -170,7 +193,6 @@ function PayU(config) {
 
 
             transaction.isTest(false);
-            console.log(payuPayload)
             https_post(payuPayload, cb);
         });
     };
@@ -186,6 +208,7 @@ function PayU(config) {
 
     this.setCommand = function (COMMAND) {
         payuPayload.command = cmd[COMMAND];
+        return this;
     };
 
     this.setLanguage = function (language) {
@@ -193,6 +216,7 @@ function PayU(config) {
             throw "Lenaguaje no encontrado";
         }
         payuPayload.language = LANGUAGE[language];
+        return this;
     };
 
     this.apiContext = function (api_key , api_login) {
@@ -200,6 +224,7 @@ function PayU(config) {
             "apiKey": api_key,
             "apiLogin": api_login
         };
+        return this;
     };
 
     this.transaction = function () {
@@ -256,6 +281,111 @@ function PayU(config) {
     this.setBuyer = function (payload) {
         payuPayload.transaction.order.buyer = payload;
         return this;
+    };
+
+    this.setBankList = function (payload) {
+        payuPayload.bankListInformation = payload;
+        return this;
+    };
+
+    this.execute = function (cb) {
+        https_post(payuPayload, cb);
+    };
+
+    function cleanPayload(key) {
+        delete payuPayload[key];
+    };
+
+    //constructor
+
+    this.setLanguage("ES")
+        .setCommand("GET_BANKS_LIST")
+        .apiContext(config.api_key , config.api_login)
+        .isTest(false);
+
+    this.consumeNotification = function (data) {
+
+        if (isEmptyObject(data.body)){
+            return Promise.reject('Empty value data')
+        }
+
+        let headers = this.getRequestHeaders(data.headers)
+
+        let signature = this.getSignature(headers);
+
+        if(!this.verifyDocumentSignature(data.body , signature)){
+            return Promise.reject('Sign is different')
+        };
+
+        return this.verifyResponse({'response' : data.body, 'code' : 200}, 'OrderNotifyRequest');
+    };
+
+    this.getRequestHeaders = function (headers) {
+        headers['/X-OpenPayu-Signature/i'] ='signature' ;
+        return headers;
+    };
+
+    this.getSignature = function (headers) {
+        for(let header in headers)
+        {
+            if(header.match('/X-OpenPayu-Signature/i') || header.match('/OpenPayu-Signature/i'))
+                return headers[header];
+        }
+        return null;
+    };
+    
+    this.verifyDocumentSignature = function (data , signature) {
+        let key = config.api_key;
+        let merchant_id = data.merchant_id;
+        let reference_sale = data.reference_sale;
+        let value = data.value;
+        value = value[value.length - 1] == 0 ? value.substr(0 , value.length - 1):value;
+        let curency = data.currency;
+        let state_pol = data.state_pol;
+        let message = key + '~' + merchant_id + '~' + reference_sale + '~' + value + '~' + curency + '~' + state_pol;
+
+        return md5(message) == data.sign;
+    };
+
+    var reponse = {};
+
+    this.verifyResponse = function (response) {
+
+        let httpStatus = response['code'];
+        //let message = JSON.parse(response['response']);
+        let message = response['response'];
+
+        this.build(message);
+
+        if (httpStatus == 200 || httpStatus == 201 || httpStatus == 422 || httpStatus == 301 || httpStatus == 302)
+        {
+            return Promise.resolve(this);
+        } else {
+            return Promise.reject('Method http not found')
+        }
+    };
+
+    this.build = function (data) {
+        reponse = data;
+    };
+
+    this.getResponse = function () {
+        return reponse;
+    };
+
+    this.details = function () {
+        payuPayload.details = {};
+        return this;
+    };
+
+    this.setOrderId = function (id) {
+        payuPayload.details.orderId = parseInt(id);
+        return this;
+    }
+
+    this.doOrderDetailReporting = function (id , cb) {
+        this.setCommand("ORDER_DETAIL").details().setOrderId(id)
+        https_post(payuPayload , cb , 'https://sandbox.api.payulatam.com/reports-api/4.0/service.cgi')
     };
 
     return this;
